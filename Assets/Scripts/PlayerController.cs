@@ -1,4 +1,5 @@
 using UnityEditor;
+using UnityEditorInternal;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,6 +8,8 @@ public class PlayerController : MonoBehaviour
     public float horizontal;
     public float speed = 5;
     public float jumpPower = 15f;
+
+
     public enum FacingDirection
     {
         left, right
@@ -33,15 +36,18 @@ public class PlayerController : MonoBehaviour
 
         
 
-
         MovementUpdate(playerInput);
-
+        
+        if(!IsGrounded() && Input.GetKeyDown(KeyCode.Space))
+        {
+            jump();
+        }
    
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
-        rb.velocity = playerInput * speed;
+        rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
 
     }
 
@@ -64,15 +70,22 @@ public class PlayerController : MonoBehaviour
     }
     public bool IsGrounded()
     {
-        if(Input.GetKey(KeyCode.Space))
+        RaycastHit2D hit;
+        hit = Physics2D.Raycast(transform.position, Vector2.down, 0.8f);
+        Debug.DrawRay(transform.position, Vector2.down * 0.8f, Color.red);
+
+        if(hit.collider==null)
         {
-            rb.AddForce(Vector2.up * (jumpPower));
             return true;
         }
-       
         return false;
     }
+    public void jump()
+    { 
 
+        rb.AddForce(Vector2.up * (jumpPower),ForceMode2D.Impulse);
+        
+    }
     public FacingDirection GetFacingDirection()
     {
         if (rb.velocity.x <0)
