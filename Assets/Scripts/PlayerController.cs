@@ -8,8 +8,13 @@ public class PlayerController : MonoBehaviour
     public float horizontal;
     public float speed = 5;
     public float jumpPower = 15f;
-
-
+    public float playerGrav;
+    public float apexHeight =50f;
+   public  float apexTime = 3;
+    public Vector2 playerInput;
+    public float terminalVelocity;
+    public float coyoteTime = 0;
+    public float groundTime = 0;
     public enum FacingDirection
     {
         left, right
@@ -31,24 +36,29 @@ public class PlayerController : MonoBehaviour
 
 
         float horizontal = Input.GetAxis("Horizontal");
-        Vector2 playerInput = new Vector2(0, 0);
+      playerInput = new Vector2(0, 0);
         playerInput.x = horizontal;
 
-        
+
 
         MovementUpdate(playerInput);
         
-        if(!IsGrounded() && Input.GetKeyDown(KeyCode.Space))
-        {
-            jump();
-        }
-   
+            if (groundTime<coyoteTime || !IsGrounded() && (Input.GetKeyDown(KeyCode.Space)))
+            {
+                jump();
+            }
+        
     }
 
     private void MovementUpdate(Vector2 playerInput)
     {
         rb.velocity = new Vector2(playerInput.x * speed, rb.velocity.y);
-
+        if (rb.velocity.y < -terminalVelocity)
+        {
+            terminalVelocity -= Time.deltaTime;
+            rb.velocity = new Vector2(rb.velocity.x, rb.velocity.y- terminalVelocity);
+        }
+        terminalVelocity = 0;
     }
 
     public bool IsWalking()
@@ -58,37 +68,52 @@ public class PlayerController : MonoBehaviour
         {
 
             returning = true;
-            print(returning);
+           
             return returning;
         }
         else
         {
-            print(returning);
+            
             return returning;
         }
-        
+
     }
     public bool IsGrounded()
     {
         RaycastHit2D hit;
         hit = Physics2D.Raycast(transform.position, Vector2.down, 0.8f);
         Debug.DrawRay(transform.position, Vector2.down * 0.8f, Color.red);
+      
+            if (hit.collider == null)
+            {
 
-        if(hit.collider==null)
-        {
-            return true;
-        }
+                coyoteTime += Time.deltaTime;
+            groundTime = 0;
+                playerGrav = -1.5f * (apexHeight / Mathf.Pow(apexTime / 2, 2));
+                rb.velocity += new Vector2(playerInput.x, playerGrav * Time.deltaTime);
+
+
+                return true;
+            }
+        
+
+        coyoteTime =0;
         return false;
+
     }
     public void jump()
-    { 
+    {
 
-        rb.AddForce(Vector2.up * (jumpPower),ForceMode2D.Impulse);
+        //rb.AddForce(Vector2.up * (jumpPower),ForceMode2D.Impulse);
+        rb.gravityScale = 0f;
+        float playerVelo = apexHeight / apexTime;
+        rb.velocity = new Vector2(rb.velocity.x, playerVelo);
+
         
     }
     public FacingDirection GetFacingDirection()
     {
-        if (rb.velocity.x <0)
+        if (rb.velocity.x < 0)
         {
             return FacingDirection.left;
         }
@@ -96,6 +121,6 @@ public class PlayerController : MonoBehaviour
         {
             return FacingDirection.right;
         }
-        return FacingDirection.left; 
+        return FacingDirection.left;
     }
 }
