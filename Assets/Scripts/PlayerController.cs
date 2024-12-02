@@ -22,6 +22,11 @@ public class PlayerController : MonoBehaviour
     public float accelerationTime = 0.25f;
     public float decelerationTime = 0.15f;
 
+    [Header("Dashing")]
+    public float dashSpeed = 15f;
+    public float dashCooldown = 1f;
+    public float dashTime = 0.5f;
+
     [Header("Vertical")]
     public float apexHeight = 3f;
     public float apexTime = 0.5f;
@@ -51,6 +56,8 @@ public class PlayerController : MonoBehaviour
 
         gravity = -2 * apexHeight / (apexTime * apexTime);
         initialJumpSpeed = 2 * apexHeight / apexTime;
+
+
     }
 
     public void Update()
@@ -70,7 +77,7 @@ public class PlayerController : MonoBehaviour
         switch(currentState)
         {
             case PlayerState.dead:
-                // do nothing - we ded.
+                // do nothing - we deqd.
                 break;
             case PlayerState.idle:
                 if (!isGrounded) currentState = PlayerState.jumping;
@@ -125,6 +132,14 @@ public class PlayerController : MonoBehaviour
                 velocity.x = Mathf.Min(velocity.x, 0);
             }
         }
+
+    if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
+        {
+            velocity = new Vector2(playerInput.x * dashSpeed, playerInput.y);
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && playerInput.x <0){
+                  velocity=new Vector2((playerInput.x *dashSpeed), playerInput.y);
+              }
     }
 
     private void JumpUpdate()
@@ -158,9 +173,10 @@ public class PlayerController : MonoBehaviour
     {
         return isGrounded;
     }
-
+  
     public PlayerDirection GetFacingDirection()
     {
         return currentDirection;
     }
+    
 }
