@@ -24,12 +24,14 @@ public class PlayerController : MonoBehaviour
 
     [Header("Dashing")]
     public float dashSpeed = 15f;
-    public float dashCooldown = 1f;
+    public float dashCooldown = 0f;
     public float dashTime = 0.5f;
+    public float dashDuration = 0.75f;
 
     [Header("Vertical")]
     public float apexHeight = 3f;
     public float apexTime = 0.5f;
+    public float playerJump = 0;
 
     [Header("Ground Checking")]
     public float groundCheckOffset = 0.5f;
@@ -65,7 +67,7 @@ public class PlayerController : MonoBehaviour
         previousState = currentState;
 
         CheckForGround();
-
+        GroundPound();
         Vector2 playerInput = new Vector2();
         playerInput.x = Input.GetAxisRaw("Horizontal");
 
@@ -97,6 +99,7 @@ public class PlayerController : MonoBehaviour
         }
 
         MovementUpdate(playerInput);
+        DashUpdate(playerInput);
         JumpUpdate();
 
         if (!isGrounded)
@@ -132,32 +135,92 @@ public class PlayerController : MonoBehaviour
                 velocity.x = Mathf.Min(velocity.x, 0);
             }
         }
+  
+        
+    }
+    private void DashUpdate(Vector2 playerInput)
+    {
+        print(dashCooldown);
+        
+            
+                if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
+                {
+            if (dashCooldown <= 0 && dashTime < dashDuration)
+            {
+                velocity = new Vector2(playerInput.x * dashSpeed, playerInput.y);
+                dashTime += Time.deltaTime;
+            }
+            }
+            if (Input.GetKey(KeyCode.LeftShift) && playerInput.x < 0)
+                {
+            if (dashCooldown <= 0)
+            {
+                if (dashCooldown <= 0 && dashTime < dashDuration)
+                {
+                    velocity = new Vector2((playerInput.x * dashSpeed), playerInput.y);
+                    dashTime += Time.deltaTime;
+                }
 
-    if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
+                }
+
+
+            }
+            if(dashTime>dashDuration)
         {
-            velocity = new Vector2(playerInput.x * dashSpeed, playerInput.y);
+
+            dashCooldown += Time.deltaTime;
         }
-        if (Input.GetKey(KeyCode.LeftShift) && playerInput.x <0){
-                  velocity=new Vector2((playerInput.x *dashSpeed), playerInput.y);
-              }
+            if(dashCooldown> 1)
+        {
+            dashTime = 0;
+            dashCooldown = 0;
+        }
     }
 
-    private void JumpUpdate()
+
+        private void JumpUpdate()
     {
-        if (isGrounded && Input.GetButton("Jump"))
+   
+        if ( Input.GetButtonDown("Jump") && playerJump<2)
         {
+            playerJump+= 1; 
             velocity.y = initialJumpSpeed;
+            
             isGrounded = false;
+            
         }
     }
 
     private void CheckForGround()
     {
+        if (isGrounded == true)
+        {
+            playerJump = 0; 
+        }
         isGrounded = Physics2D.OverlapBox(
             transform.position + Vector3.down * groundCheckOffset,
             groundCheckSize,
             0,
             groundCheckMask);
+    }
+
+    private void GroundPound()
+    {
+        if (isGrounded == false && Input.GetKey(KeyCode.S))
+        {
+            transform.position += Vector3.down * 50*  Time.deltaTime;
+            if (isGrounded == true)
+            {
+                float stunned = +Time.deltaTime;
+                transform.position += Vector3.zero;
+                if (stunned < 5)
+                {
+                    transform.position += Vector3.zero;
+                }
+            }
+        }
+               
+            
     }
 
     public void OnDrawGizmos()
