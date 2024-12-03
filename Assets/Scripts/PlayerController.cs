@@ -31,7 +31,7 @@ public class PlayerController : MonoBehaviour
     [Header("Vertical")]
     public float apexHeight = 3f;
     public float apexTime = 0.5f;
-    public float playerJump = 0;
+    public bool doubleJump = true;
 
     [Header("Ground Checking")]
     public float groundCheckOffset = 0.5f;
@@ -180,22 +180,35 @@ public class PlayerController : MonoBehaviour
 
         private void JumpUpdate()
     {
-   
-        if ( Input.GetButtonDown("Jump") && playerJump<2)
+        if (isGrounded)
         {
-            playerJump+= 1; 
-            velocity.y = initialJumpSpeed;
-            
-            isGrounded = false;
-            
+            doubleJump = true;
+            if (Input.GetButton("Jump"))
+            {
+
+                velocity.y = initialJumpSpeed;
+                isGrounded = false;
+                currentState = PlayerState.jumping;
+            }
         }
+        else {
+            if (Input.GetButtonDown("Jump") && doubleJump == true)
+            {
+                velocity.y = initialJumpSpeed;
+                doubleJump = false;
+                isGrounded = false;
+
+            }
+
+        }
+
     }
 
     private void CheckForGround()
     {
         if (isGrounded == true)
         {
-            playerJump = 0; 
+            doubleJump = true;
         }
         isGrounded = Physics2D.OverlapBox(
             transform.position + Vector3.down * groundCheckOffset,
