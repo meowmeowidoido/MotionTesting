@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public enum PlayerDirection
 {
@@ -32,7 +33,9 @@ public class PlayerController : MonoBehaviour
     public float apexHeight = 3f;
     public float apexTime = 0.5f;
     public bool doubleJump = true;
-
+    public float jumpStrength = 1.2f;
+    float playerJumpStrength;
+    bool firstJump = false;
     [Header("Ground Checking")]
     public float groundCheckOffset = 0.5f;
     public Vector2 groundCheckSize = new(0.4f, 0.1f);
@@ -149,58 +152,90 @@ public class PlayerController : MonoBehaviour
             {
                 velocity = new Vector2(playerInput.x * dashSpeed, playerInput.y);
                 dashTime += Time.deltaTime;
+              
             }
             }
             if (Input.GetKey(KeyCode.LeftShift) && playerInput.x < 0)
                 {
             if (dashCooldown <= 0)
             {
-                if (dashCooldown <= 0 && dashTime < dashDuration)
+                if (dashCooldown == 0 && dashTime < dashDuration)
                 {
                     velocity = new Vector2((playerInput.x * dashSpeed), playerInput.y);
                     dashTime += Time.deltaTime;
                 }
 
                 }
+           
+        }
+    
 
-
-            }
-            if(dashTime>dashDuration)
+        if (dashTime>dashDuration)
         {
 
             dashCooldown += Time.deltaTime;
-        }
-            if(dashCooldown> 1)
-        {
-            dashTime = 0;
-            dashCooldown = 0;
-        }
+            if (dashCooldown > 1)
+            {
+                dashTime = 0;
+                dashCooldown = 0;
+            }
+            if (isGrounded)
+            {
+                if (dashCooldown <= 0)
+                {
+                    dashTime = 0;
+                    dashCooldown -= dashTime * Time.deltaTime;
+                }
+            }
+            }
+       
     }
 
 
-        private void JumpUpdate()
+    private void JumpUpdate()
     {
+
         if (isGrounded)
         {
-            doubleJump = true;
-            if (Input.GetButton("Jump"))
+            doubleJump = false;
+            if (Input.GetButton("Jump") && (currentState.Equals(PlayerState.walking) || currentState.Equals(PlayerState.idle)))
             {
-
                 velocity.y = initialJumpSpeed;
                 isGrounded = false;
                 currentState = PlayerState.jumping;
+                
             }
         }
-        else {
-            if (Input.GetButtonDown("Jump") && doubleJump == true)
+        if ( Input.GetButtonUp("Jump")){
+                    doubleJump = true;
+                }
+               
+     if(!isGrounded)
+        {
+            if (Input.GetButton("Jump") && doubleJump == true && jumpStrength > 1d)
             {
-                velocity.y = initialJumpSpeed;
-                doubleJump = false;
-                isGrounded = false;
+                firstJump = true;
+
+                if (firstJump == true)
+                {
+                    jumpStrength -= jumpStrength * Time.deltaTime;
+                    velocity.y = initialJumpSpeed;
+
+                    isGrounded = false;
+                }
 
             }
 
         }
+        if (isGrounded)
+        {
+           
+            jumpStrength = 1.2f;
+  
+           
+        }
+    
+      
 
     }
 
@@ -228,7 +263,7 @@ public class PlayerController : MonoBehaviour
                 transform.position += Vector3.zero;
                 if (stunned < 5)
                 {
-                    transform.position += Vector3.zero;
+                    transform.position = Vector3.zero;
                 }
             }
         }

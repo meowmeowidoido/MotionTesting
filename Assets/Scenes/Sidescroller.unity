@@ -1727,12 +1727,14 @@ MonoBehaviour:
   maxSpeed: 5
   accelerationTime: 0.25
   decelerationTime: 0.15
-  dashSpeed: 15
+  dashSpeed: 20
   dashCooldown: 0
-  dashTime: 0.5
-  dashDuration: 0.75
-  apexHeight: 4
+  dashTime: 0
+  dashDuration: 0.2
+  apexHeight: 2.5
   apexTime: 0.5
+  doubleJump: 1
+  jumpStrength: 5
   groundCheckOffset: 0.595
   groundCheckSize: {x: 0.6, y: 0.1}
   groundCheckMask:
