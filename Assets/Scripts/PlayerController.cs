@@ -278,36 +278,20 @@ public class PlayerController : MonoBehaviour
 
     private void GroundPound()
     {
-        // Perform ground pound if the player is in the air and presses 'S'
-        if (!isGrounded && Input.GetKey(KeyCode.S) && !playerStunned)
+        if (isGrounded == false && Input.GetKey(KeyCode.S))
         {
-            transform.position += Vector3.down * 50 * Time.deltaTime; // Move downwards
-
-            // Check if grounded to initiate the stun
-            if (isGrounded)
+            transform.position += Vector3.down * 50 * Time.deltaTime;
+            if (isGrounded == true)
             {
-                playerStunned = true;
-                stunTimer = stunDuration; // Set the stun timer
+                float stunned = +Time.deltaTime;
+                transform.position += Vector3.zero;
+                if (stunned < 5)
+                {
+                    transform.position += Vector3.zero;
+                }
             }
         }
 
-        // Handle the stunned state
-        if (playerStunned==true)
-        {
-            stunTimer -= Time.deltaTime; // Countdown the stun timer
-
-            if (stunTimer <= 0)
-            {
-                playerStunned = false; // Exit stun state when timer ends
-                stunTimer = 0;         // Reset timer to prevent negative values
-            }
-        }
-
-        // Stop movement if stunned
-        if (playerStunned==true)
-        {
-            velocity = Vector2.zero; // Clear velocity to lock movement
-        }
     }
 
     public void OnDrawGizmos()
