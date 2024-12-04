@@ -17,6 +17,10 @@ public class PlayerController : MonoBehaviour
     private PlayerDirection currentDirection = PlayerDirection.right;
     public PlayerState currentState = PlayerState.idle;
     public PlayerState previousState = PlayerState.idle;
+    [Header("Ground Pound")]
+    public bool playerStunned = false;
+    public float stunTimer = 0;
+    public float stunDuration = 1;
 
     [Header("Horizontal")]
     public float maxSpeed = 5f;
@@ -41,6 +45,8 @@ public class PlayerController : MonoBehaviour
     public Vector2 groundCheckSize = new(0.4f, 0.1f);
     public LayerMask groundCheckMask;
 
+ 
+
     private float accelerationRate;
     private float decelerationRate;
 
@@ -51,7 +57,7 @@ public class PlayerController : MonoBehaviour
     public bool isDead = false;
 
     private Vector2 velocity;
-
+  
     public void Start()
     {
         body.gravityScale = 0;
@@ -205,28 +211,46 @@ public class PlayerController : MonoBehaviour
                 currentState = PlayerState.jumping;
                 
             }
+            
+
         }
-        if ( Input.GetButtonUp("Jump")){
-                    doubleJump = true;
-                }
-               
-     if(!isGrounded)
+        if (Input.GetButtonUp("Jump"))
         {
-            if (Input.GetButton("Jump") && doubleJump == true && jumpStrength > 1d)
+            doubleJump = true;
+        }
+
+        if (!isGrounded)
+
+        {
+            
+            if (Input.GetButton("Jump") && doubleJump == true && jumpStrength > 1f)
             {
                 firstJump = true;
-
+             
                 if (firstJump == true)
                 {
+                
                     jumpStrength -= jumpStrength * Time.deltaTime;
                     velocity.y = initialJumpSpeed;
 
                     isGrounded = false;
+                    
                 }
+
+               
 
             }
 
+       
+
+
         }
+        if (jumpStrength < 1.2 && Input.GetButtonUp("Jump"))
+        {
+            doubleJump = false;
+        }
+
+
         if (isGrounded)
         {
            
@@ -254,21 +278,36 @@ public class PlayerController : MonoBehaviour
 
     private void GroundPound()
     {
-        if (isGrounded == false && Input.GetKey(KeyCode.S))
+        // Perform ground pound if the player is in the air and presses 'S'
+        if (!isGrounded && Input.GetKey(KeyCode.S) && !playerStunned)
         {
-            transform.position += Vector3.down * 50*  Time.deltaTime;
-            if (isGrounded == true)
+            transform.position += Vector3.down * 50 * Time.deltaTime; // Move downwards
+
+            // Check if grounded to initiate the stun
+            if (isGrounded)
             {
-                float stunned = +Time.deltaTime;
-                transform.position += Vector3.zero;
-                if (stunned < 5)
-                {
-                    transform.position = Vector3.zero;
-                }
+                playerStunned = true;
+                stunTimer = stunDuration; // Set the stun timer
             }
         }
-               
-            
+
+        // Handle the stunned state
+        if (playerStunned==true)
+        {
+            stunTimer -= Time.deltaTime; // Countdown the stun timer
+
+            if (stunTimer <= 0)
+            {
+                playerStunned = false; // Exit stun state when timer ends
+                stunTimer = 0;         // Reset timer to prevent negative values
+            }
+        }
+
+        // Stop movement if stunned
+        if (playerStunned==true)
+        {
+            velocity = Vector2.zero; // Clear velocity to lock movement
+        }
     }
 
     public void OnDrawGizmos()

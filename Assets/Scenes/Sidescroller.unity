@@ -1724,6 +1724,9 @@ MonoBehaviour:
   body: {fileID: 1433354316}
   currentState: 0
   previousState: 0
+  playerStunned: 0
+  stunTimer: 0
+  stunDuration: 1
   maxSpeed: 5
   accelerationTime: 0.25
   decelerationTime: 0.15
@@ -1739,7 +1742,7 @@ MonoBehaviour:
   groundCheckSize: {x: 0.6, y: 0.1}
   groundCheckMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   isDead: 0
 --- !u!4 &1433354315
 Transform:
