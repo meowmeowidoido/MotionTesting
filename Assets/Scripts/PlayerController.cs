@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.Assertions.Must;
 
 public enum PlayerDirection
 {
@@ -16,6 +17,10 @@ public class PlayerController : MonoBehaviour
     private PlayerDirection currentDirection = PlayerDirection.right;
     public PlayerState currentState = PlayerState.idle;
     public PlayerState previousState = PlayerState.idle;
+    [Header("Ground Pound")]
+    public bool playerStunned = false;
+    public float stunTimer = 0;
+    public float stunDuration = 1;
 
     [Header("Horizontal")]
     public float maxSpeed = 5f;
@@ -31,12 +36,16 @@ public class PlayerController : MonoBehaviour
     [Header("Vertical")]
     public float apexHeight = 3f;
     public float apexTime = 0.5f;
-    public float playerJump = 0;
-
+    public bool doubleJump = true;
+    public float jumpStrength = 1.2f;
+    float playerJumpStrength;
+    bool firstJump = false;
     [Header("Ground Checking")]
     public float groundCheckOffset = 0.5f;
     public Vector2 groundCheckSize = new(0.4f, 0.1f);
     public LayerMask groundCheckMask;
+
+
 
     private float accelerationRate;
     private float decelerationRate;
@@ -67,16 +76,23 @@ public class PlayerController : MonoBehaviour
         previousState = currentState;
 
         CheckForGround();
-        GroundPound();
+        
         Vector2 playerInput = new Vector2();
         playerInput.x = Input.GetAxisRaw("Horizontal");
-
-        if (isDead)
+        GroundPound();
+        if (!playerStunned==true)
+        {
+           
+            MovementUpdate(playerInput);
+            DashUpdate(playerInput);
+            JumpUpdate();
+        }
+            if (isDead)
         {
             currentState = PlayerState.dead;
         }
 
-        switch(currentState)
+        switch (currentState)
         {
             case PlayerState.dead:
                 // do nothing - we deqd.
@@ -98,9 +114,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-        MovementUpdate(playerInput);
-        DashUpdate(playerInput);
-        JumpUpdate();
+      
 
         if (!isGrounded)
             velocity.y += gravity * Time.deltaTime;
@@ -135,67 +149,130 @@ public class PlayerController : MonoBehaviour
                 velocity.x = Mathf.Min(velocity.x, 0);
             }
         }
-  
-        
+
+
     }
     private void DashUpdate(Vector2 playerInput)
     {
         print(dashCooldown);
-        
-            
-                if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
-                {
+
+
+        if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
+        {
             if (dashCooldown <= 0 && dashTime < dashDuration)
             {
                 velocity = new Vector2(playerInput.x * dashSpeed, playerInput.y);
                 dashTime += Time.deltaTime;
+
             }
-            }
-            if (Input.GetKey(KeyCode.LeftShift) && playerInput.x < 0)
-                {
+        }
+        if (Input.GetKey(KeyCode.LeftShift) && playerInput.x < 0)
+        {
             if (dashCooldown <= 0)
             {
-                if (dashCooldown <= 0 && dashTime < dashDuration)
+                if (dashCooldown == 0 && dashTime < dashDuration)
                 {
                     velocity = new Vector2((playerInput.x * dashSpeed), playerInput.y);
                     dashTime += Time.deltaTime;
                 }
 
-                }
-
-
             }
-            if(dashTime>dashDuration)
+
+        }
+
+
+        if (dashTime > dashDuration)
         {
 
             dashCooldown += Time.deltaTime;
+            if (dashCooldown > 1)
+            {
+                dashTime = 0;
+                dashCooldown = 0;
+            }
+            if (isGrounded)
+            {
+                if (dashCooldown <= 0)
+                {
+                    dashTime = 0;
+                    dashCooldown -= dashTime * Time.deltaTime;
+                }
+            }
         }
-            if(dashCooldown> 1)
-        {
-            dashTime = 0;
-            dashCooldown = 0;
-        }
+
     }
 
 
-        private void JumpUpdate()
+    private void JumpUpdate()
     {
-   
-        if ( Input.GetButtonDown("Jump") && playerJump<2)
+
+        if (isGrounded)
         {
-            playerJump+= 1; 
-            velocity.y = initialJumpSpeed;
-            
-            isGrounded = false;
-            
+            doubleJump = false;
+            if (Input.GetButton("Jump") && (currentState.Equals(PlayerState.walking) || currentState.Equals(PlayerState.idle)))
+            {
+                velocity.y = initialJumpSpeed;
+                isGrounded = false;
+                currentState = PlayerState.jumping;
+
+            }
+
+
         }
+        if (Input.GetButtonUp("Jump"))
+        {
+            doubleJump = true;
+        }
+
+        if (!isGrounded)
+
+        {
+
+            if (Input.GetButton("Jump") && doubleJump == true && jumpStrength > 1f)
+            {
+                firstJump = true;
+
+                if (firstJump == true)
+                {
+
+                    jumpStrength -= jumpStrength * Time.deltaTime;
+                    velocity.y = initialJumpSpeed;
+
+                    isGrounded = false;
+
+                }
+
+
+
+            }
+
+
+
+
+        }
+        if (jumpStrength < 1.2 && Input.GetButtonUp("Jump"))
+        {
+            doubleJump = false;
+        }
+
+
+        if (isGrounded)
+        {
+
+            jumpStrength = 1.2f;
+
+
+        }
+
+
+
     }
 
     private void CheckForGround()
     {
         if (isGrounded == true)
         {
-            playerJump = 0; 
+            doubleJump = true;
         }
         isGrounded = Physics2D.OverlapBox(
             transform.position + Vector3.down * groundCheckOffset,
@@ -208,19 +285,24 @@ public class PlayerController : MonoBehaviour
     {
         if (isGrounded == false && Input.GetKey(KeyCode.S))
         {
-            transform.position += Vector3.down * 50*  Time.deltaTime;
-            if (isGrounded == true)
+            transform.position += Vector3.down * 50 * Time.deltaTime;
+            playerStunned = true;
+   
+        }
+        if(Input.GetKeyUp(KeyCode.S)&& !isGrounded ) {
+            playerStunned = false;
+        }
+        if (playerStunned==true && isGrounded==true)
+        {
+            stunTimer += Time.deltaTime;
+            transform.position += Vector3.zero;
+            if (stunTimer > stunDuration)
             {
-                float stunned = +Time.deltaTime;
-                transform.position += Vector3.zero;
-                if (stunned < 5)
-                {
-                    transform.position += Vector3.zero;
-                }
+                playerStunned = false;
+                stunTimer = 0;
             }
         }
-               
-            
+      
     }
 
     public void OnDrawGizmos()
@@ -236,10 +318,10 @@ public class PlayerController : MonoBehaviour
     {
         return isGrounded;
     }
-  
+
     public PlayerDirection GetFacingDirection()
     {
         return currentDirection;
     }
-    
+
 }
