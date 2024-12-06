@@ -29,7 +29,8 @@ public class PlayerController : MonoBehaviour
 
     [Header("Dashing")]
     public float dashSpeed = 15f;
-    public float dashCooldown = 0f;
+    float dashCooldown = 0f;
+    public float dashCoolDownLimit = 1f;
     public float dashTime = 0.5f;
     public float dashDuration = 0.75f;
 
@@ -185,7 +186,7 @@ public class PlayerController : MonoBehaviour
         {
 
             dashCooldown += Time.deltaTime;
-            if (dashCooldown > 1)
+            if (dashCooldown > dashCoolDownLimit)
             {
                 dashTime = 0;
                 dashCooldown = 0;
