@@ -1731,7 +1731,7 @@ MonoBehaviour:
   accelerationTime: 0.25
   decelerationTime: 0.15
   dashSpeed: 25
-  dashCooldown: 0
+  dashCoolDownLimit: 1
   dashTime: 0
   dashDuration: 0.22
   apexHeight: 2.5
@@ -1742,7 +1742,7 @@ MonoBehaviour:
   groundCheckSize: {x: 0.6, y: 0.1}
   groundCheckMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 0
   isDead: 0
 --- !u!4 &1433354315
 Transform:
