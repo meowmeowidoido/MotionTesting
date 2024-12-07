@@ -157,7 +157,8 @@ public class PlayerController : MonoBehaviour
     {
         print(dashCooldown);
 
-
+        //If the player presses LeftShift andthe player inputx is facing to the right or is positive, 
+        //Dash to the right
         if (Input.GetKey(KeyCode.LeftShift) && playerInput.x > 0)
         {
             if (dashCooldown <= 0 && dashTime < dashDuration)
@@ -167,6 +168,8 @@ public class PlayerController : MonoBehaviour
 
             }
         }
+
+        //Same as the last bit but for the left.
         if (Input.GetKey(KeyCode.LeftShift) && playerInput.x < 0)
         {
             if (dashCooldown <= 0)
@@ -182,36 +185,41 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        if (dashTime > dashDuration)
+        if (dashTime > dashDuration)//if the dashTime is greater than the duration, cooldown begins.
         {
 
             dashCooldown += Time.deltaTime;
             if (dashCooldown > dashCoolDownLimit)
+                //when the dashCooldown is greater than the Limit it will reset the dashTime and coolDown (player can dash again)
             {
                 dashTime = 0;
                 dashCooldown = 0;
             }
-            if (isGrounded)
+            if (isGrounded)//If the player is grounded and the dash cooldown is less than or equal to 0 the dashTime resets to 0 and dashCooldown is decremented by dashTime and deltaTime
+                    //Cooldown only begins when player is on the ground.
             {
-                if (dashCooldown <= 0)
+                if (dashTime <= 0) //If the dash is less than 0 reset to 0 and dashCooldown is decremented by dashTime * deltaTime.
                 {
                     dashTime = 0;
-                    dashCooldown -= dashTime * Time.deltaTime;
+                    dashCooldown -= dashTime  * Time.deltaTime;
                 }
             }
         }
+      
 
     }
 
 
     private void JumpUpdate()
     {
-
+        //if the player is grounded 
         if (isGrounded)
-        {
+        {//turn doubleJump to false. So that the player cannot glide with the first JUMP.
             doubleJump = false;
+            //if the player jumps and is in the walking or idle state
             if (Input.GetButton("Jump") && (currentState.Equals(PlayerState.walking) || currentState.Equals(PlayerState.idle)))
             {
+                //Increase velocity and make IsGrounded false.
                 velocity.y = initialJumpSpeed;
                 isGrounded = false;
                 currentState = PlayerState.jumping;
@@ -220,23 +228,25 @@ public class PlayerController : MonoBehaviour
 
 
         }
+        //WHEN the player lets go turn doubleJump to TRUE, this will allow the player to double JUMP.
         if (Input.GetButtonUp("Jump"))
         {
             doubleJump = true;
         }
 
-        if (!isGrounded)
+        if (!isGrounded)//If the player is not grounded, 
 
         {
-
+            //if they jump and && double jump is true, and jump Strength is GREATER than 1, allow player to jump
             if (Input.GetButton("Jump") && doubleJump == true && jumpStrength > 1f)
             {
                 firstJump = true;
-
+                //First jump becomes true making it known the first jump has been done
                 if (firstJump == true)
                 {
-
+                    //decrement jump strenght by itself and deltaTime.
                     jumpStrength -= jumpStrength * Time.deltaTime;
+                    //JUMP!
                     velocity.y = initialJumpSpeed;
 
                     isGrounded = false;
@@ -251,6 +261,8 @@ public class PlayerController : MonoBehaviour
 
 
         }
+        //If the jumpStrength is lower than 1.2 and the player lets go of the key they cannot jump
+        //This is to ensure the player cannot perform multiple jumps by tapping the button.
         if (jumpStrength < 1.2 && Input.GetButtonUp("Jump"))
         {
             doubleJump = false;
