@@ -1730,19 +1730,19 @@ MonoBehaviour:
   maxSpeed: 5
   accelerationTime: 0.25
   decelerationTime: 0.15
-  dashSpeed: 25
+  dashSpeed: 15
   dashCoolDownLimit: 1
-  dashTime: 0
-  dashDuration: 0.22
-  apexHeight: 2.5
+  dashTime: 0.5
+  dashDuration: 0.75
+  apexHeight: 4
   apexTime: 0.5
-  doubleJump: 0
+  doubleJump: 1
   jumpStrength: 1.2
   groundCheckOffset: 0.595
   groundCheckSize: {x: 0.6, y: 0.1}
   groundCheckMask:
     serializedVersion: 2
-    m_Bits: 0
+    m_Bits: 8
   isDead: 0
 --- !u!4 &1433354315
 Transform:

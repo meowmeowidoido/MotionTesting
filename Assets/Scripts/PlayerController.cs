@@ -77,18 +77,18 @@ public class PlayerController : MonoBehaviour
         previousState = currentState;
 
         CheckForGround();
-        
+
         Vector2 playerInput = new Vector2();
         playerInput.x = Input.GetAxisRaw("Horizontal");
         GroundPound();
-        if (!playerStunned==true)
+        if (!playerStunned == true)
         {
-           
+
             MovementUpdate(playerInput);
             DashUpdate(playerInput);
             JumpUpdate();
         }
-            if (isDead)
+        if (isDead)
         {
             currentState = PlayerState.dead;
         }
@@ -115,7 +115,7 @@ public class PlayerController : MonoBehaviour
                 break;
         }
 
-      
+
 
         if (!isGrounded)
             velocity.y += gravity * Time.deltaTime;
@@ -190,22 +190,22 @@ public class PlayerController : MonoBehaviour
 
             dashCooldown += Time.deltaTime;
             if (dashCooldown > dashCoolDownLimit)
-                //when the dashCooldown is greater than the Limit it will reset the dashTime and coolDown (player can dash again)
+            //when the dashCooldown is greater than the Limit it will reset the dashTime and coolDown (player can dash again)
             {
                 dashTime = 0;
                 dashCooldown = 0;
             }
             if (isGrounded)//If the player is grounded and the dash cooldown is less than or equal to 0 the dashTime resets to 0 and dashCooldown is decremented by dashTime and deltaTime
-                    //Cooldown only begins when player is on the ground.
+                           //Cooldown only begins when player is on the ground.
             {
                 if (dashTime <= 0) //If the dash is less than 0 reset to 0 and dashCooldown is decremented by dashTime * deltaTime.
                 {
                     dashTime = 0;
-                    dashCooldown -= dashTime  * Time.deltaTime;
+                    dashCooldown -= dashTime * Time.deltaTime;
                 }
             }
         }
-      
+
 
     }
 
@@ -296,18 +296,19 @@ public class PlayerController : MonoBehaviour
 
     private void GroundPound()
     {
-        if (isGrounded == false && Input.GetKey(KeyCode.S))
+        if (isGrounded == false && Input.GetKey(KeyCode.S))//when the player is not grounded and presses S, begin groundpound
         {
             transform.position += Vector3.down * 50 * Time.deltaTime;
             playerStunned = true;
-   
+
         }
-        if(Input.GetKeyUp(KeyCode.S)&& !isGrounded ) {
+        if (Input.GetKeyUp(KeyCode.S) && !isGrounded)
+        { //if the player lets go of S and are not grounded they are not STUNNED.
             playerStunned = false;
         }
-        if (playerStunned==true && isGrounded==true)
+        if (playerStunned == true && isGrounded == true)
         {
-            stunTimer += Time.deltaTime;
+            stunTimer += Time.deltaTime; //If the player Hits the ground and is stunned (playerStunned is true they are stunned).
             transform.position += Vector3.zero;
             if (stunTimer > stunDuration)
             {
@@ -315,7 +316,7 @@ public class PlayerController : MonoBehaviour
                 stunTimer = 0;
             }
         }
-      
+
     }
 
     public void OnDrawGizmos()
@@ -338,3 +339,4 @@ public class PlayerController : MonoBehaviour
     }
 
 }
+
