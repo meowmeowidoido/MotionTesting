@@ -195,17 +195,17 @@ public class PlayerController : MonoBehaviour
                 dashTime = 0;
                 dashCooldown = 0;
             }
-            if (isGrounded)//If the player is grounded and the dash cooldown is less than or equal to 0 the dashTime resets to 0 and dashCooldown is decremented by dashTime and deltaTime
-                           //Cooldown only begins when player is on the ground.
+          
+        }
+        if (isGrounded)//If the player is grounded and the dash cooldown is less than or equal to 0 the dashTime resets to 0 and dashCooldown is decremented by dashTime and deltaTime
+                       //Cooldown only begins when player is on the ground.
+        {
+            if (dashTime <= 0) //If the dash is less than 0 reset to 0 and dashCooldown is decremented by dashTime * deltaTime.
             {
-                if (dashTime <= 0) //If the dash is less than 0 reset to 0 and dashCooldown is decremented by dashTime * deltaTime.
-                {
-                    dashTime = 0;
-                    dashCooldown -= dashTime * Time.deltaTime;
-                }
+                dashTime = 0;
+                dashCooldown -= dashTime * Time.deltaTime;
             }
         }
-
 
     }
 

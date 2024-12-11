@@ -1730,11 +1730,11 @@ MonoBehaviour:
   maxSpeed: 5
   accelerationTime: 0.25
   decelerationTime: 0.15
-  dashSpeed: 15
+  dashSpeed: 25
   dashCoolDownLimit: 1
   dashTime: 0.5
-  dashDuration: 0.75
-  apexHeight: 4
+  dashDuration: 0.22
+  apexHeight: 2.5
   apexTime: 0.5
   doubleJump: 1
   jumpStrength: 1.2
